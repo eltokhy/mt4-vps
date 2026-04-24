@@ -7,6 +7,9 @@ services:
     build:
       context: ./mt4
       dockerfile: Dockerfile
+      platforms:
+        - linux/amd64
+    platform: linux/amd64
     container_name: mt4
     restart: unless-stopped
     volumes:
