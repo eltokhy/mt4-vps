@@ -1,4 +1,4 @@
-FROM --platform=linux/amd64 debian:bookworm-slim
+FROM debian:bookworm-slim
 RUN echo "=== BUILD ARCH PROBE ===" && uname -m && cat /etc/os-release | head -2
 
 ENV DEBIAN_FRONTEND=noninteractive \
