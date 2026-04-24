@@ -31,13 +31,18 @@ RUN mkdir -p /wine /mt4-install /mql4-payload /novnc-web && \
 COPY supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 COPY entrypoint.sh    /entrypoint.sh
 COPY healthcheck.sh   /healthcheck.sh
-RUN chmod +x /entrypoint.sh /healthcheck.sh
+RUN chmod 0755 /entrypoint.sh /healthcheck.sh && \
+    sed -i 's/\r$//' /entrypoint.sh /healthcheck.sh && \
+    bash -n /entrypoint.sh && bash -n /healthcheck.sh && \
+    ls -la /entrypoint.sh /healthcheck.sh
 
 COPY payload/MQL4 /mql4-payload/MQL4
 
 EXPOSE 6080 5900
 
-HEALTHCHECK --interval=30s --timeout=10s --start-period=120s --retries=3 \
-  CMD /healthcheck.sh
+HEALTHCHECK --interval=30s --timeout=10s --start-period=300s --retries=3 \
+  CMD /bin/bash /healthcheck.sh
 
-ENTRYPOINT ["/usr/bin/tini", "--", "/entrypoint.sh"]
+# Invoke bash explicitly instead of relying on shebang + exec bit so the
+# container starts even if the file mode is weird (git/COPY quirks).
+ENTRYPOINT ["/usr/bin/tini", "--", "/bin/bash", "/entrypoint.sh"]
